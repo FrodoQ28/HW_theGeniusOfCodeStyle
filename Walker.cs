@@ -3,7 +3,7 @@ using UnityEngine;
 public class Walker : MonoBehaviour
 {
     [SerializeField] private Transform[] _places;
-    [SerializeField] private float _float;
+    [SerializeField] private float _speed;
 
     private int _currentPlace = 0;
 
@@ -14,7 +14,7 @@ public class Walker : MonoBehaviour
             if (transform.position == _places[_currentPlace].position)
                 _currentPlace = _currentPlace++ % _places.Length;
 
-            transform.position = Vector3.MoveTowards(transform.position, _places[_currentPlace].position, _float * Time.deltaTime);
+            transform.position = Vector3.MoveTowards(transform.position, _places[_currentPlace].position, _speed * Time.deltaTime);
         }
     }
 }
