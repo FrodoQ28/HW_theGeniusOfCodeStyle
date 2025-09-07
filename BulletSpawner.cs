@@ -1,36 +1,48 @@
-using System.Collections;
 using UnityEngine;
 
-public class BulletSpawner : MonoBehaviour
+public class Walker : MonoBehaviour
 {
-    [SerializeField] private GameObject _bulletPrefab;
-    [SerializeField] private Transform _target;
+    [SerializeField] private Transform _placesParent;
+    [SerializeField] private Transform[] _places;
     [SerializeField] private float _speed;
-    [SerializeField] private float _delay;
 
-    private void Start()
+    private int _currentPlace = 0;
+    private int _minArrowLength = 1;
+
+    private void Awake()
     {
-        StartCoroutine(CreatingBullet());
-    }
-
-    private IEnumerator CreatingBullet()
-    {
-        WaitForSeconds wait = new WaitForSeconds(_delay);
-        bool isWork = true;
-
-        while (isWork)
+        if (_places == null)
         {
-            Vector3 direction = (_target.position - transform.position).normalized;
-
-            GameObject newBullet = Instantiate(_bulletPrefab, transform.position, Quaternion.identity);
-
-            if (newBullet.TryGetComponent(out Rigidbody bulletRigidbody))
-            {
-                bulletRigidbody.transform.up = direction;
-                bulletRigidbody.velocity = direction * _speed * Time.deltaTime;
-            }
-
-            yield return wait;
+            _places = new Transform[_minArrowLength];
+            _places[0] = transform;
         }
     }
+
+    public void Update()
+    {
+        if (transform.position == _places[_currentPlace].position)
+        {
+            _currentPlace = ++_currentPlace % _places.Length;
+            TurnToNextPlace();
+        }
+
+        transform.position = Vector3.MoveTowards(transform.position, _places[_currentPlace].position, _speed * Time.deltaTime);
+    }
+
+    private void TurnToNextPlace()
+    {
+        transform.forward = _places[_currentPlace].position - transform.position;
+    }
+
+#if UNITY_EDITOR
+    [ContextMenu("Refresh Child Array")]
+    private void RefreshChildArray()
+    {
+        int placeCount = _placesParent.transform.childCount;
+        _places = new Transform[placeCount];
+
+        for (int i = 0; i < placeCount; i++)
+            _places[i] = _placesParent.transform.GetChild(i);
+    }
+#endif
 }
