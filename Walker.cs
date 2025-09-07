@@ -1,20 +1,29 @@
+using System.Collections;
 using UnityEngine;
 
-public class Walker : MonoBehaviour
+public class BulletSpawner : MonoBehaviour
 {
-    [SerializeField] private Transform[] _places;
+    [SerializeField] private Bullet _bulletPrefab;
+    [SerializeField] private Transform _target;
     [SerializeField] private float _speed;
+    [SerializeField] private float _delay;
 
-    private int _currentPlace = 0;
-
-    public void Update()
+    private void Start()
     {
-        if (_places != null)
-        {
-            if (transform.position == _places[_currentPlace].position)
-                _currentPlace = _currentPlace++ % _places.Length;
+        StartCoroutine(CreatingBullet());
+    }
 
-            transform.position = Vector3.MoveTowards(transform.position, _places[_currentPlace].position, _speed * Time.deltaTime);
+    private IEnumerator CreatingBullet()
+    {
+        WaitForSeconds wait = new WaitForSeconds(_delay);
+
+        while (enabled)
+        {
+            Vector3 direction = (_target.position - transform.position).normalized;
+
+            Bullet newBullet = Instantiate(_bulletPrefab, transform.position, Quaternion.LookRotation(transform.position, direction));
+
+            yield return wait;
         }
     }
 }
